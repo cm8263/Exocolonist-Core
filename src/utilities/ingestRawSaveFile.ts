@@ -11,7 +11,7 @@ import {
 	parseStories,
 	parseStoryLogs,
 	parseYearStat,
-} from '../parser.js';
+} from '../index.js';
 
 export const ingestRawSaveFile = (json: string) => {
 	const rawSaveFile: RawSaveFile = JSON.parse(json);
