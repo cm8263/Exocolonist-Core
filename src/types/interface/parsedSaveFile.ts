@@ -13,7 +13,7 @@ import { SeenChoice } from './seenChoice';
 export interface ParsedSaveFile {
 	fileVersion: number;
 	week: number;
-	expeditionJobID: string;
+	expeditionJobId: string;
 	playTime: number;
 	mapCoords: MapCoords;
 	mapName: string;
@@ -27,7 +27,7 @@ export interface ParsedSaveFile {
 
 	cheevos: number[];
 	jobScores: number[];
-	jobGoals: number[];
+	jobGoal: number[];
 
 	hardJobWins: boolean[];
 
