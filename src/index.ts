@@ -9,52 +9,90 @@ import { YearStat } from './types/interface/yearStat';
 import { GroundHog } from './types/interface/groundHog';
 import { getMixedValue } from './utilities/getMixedValue.js';
 import { SeenChoice } from './types/interface/seenChoice';
+import { MixedValue } from './types/mixedValue';
 
-export const parseSkills = (data: string): Skill[] => {
-	return parseKeyValueList(data, (name, value) => ({
+const parseKeyValueList = <T>(data: string, map: (key: string, value: string) => T | null): T[] => {
+	const output: T[] = [];
+
+	for (const raw of data.split(',')) {
+		if (!raw.trim()) continue;
+
+		let [key, value] = raw.split(':', 2);
+		key = key?.trim() ?? '';
+		value = value?.trim() ?? '';
+
+		if (!key || !value) continue;
+
+		const mapped = map(key, value);
+		if (mapped) output.push(mapped);
+	}
+
+	return output;
+};
+
+const parseMapSpot = (data: string) => {
+	const output: MapSpot[] = [];
+	const allMapSpots = data.split(',');
+
+	for (const mapSpot of allMapSpots) {
+		let [name, storyId] = mapSpot.split(':');
+
+		name = name.trim();
+
+		if (!storyId) continue;
+
+		storyId = storyId.trim();
+		output.push({ name, storyId });
+	}
+
+	return output;
+};
+
+export const parseSkills = (skills: string): Skill[] => {
+	return parseKeyValueList(skills, (name, value) => ({
 		name,
 		value: Number(value),
 	}));
 };
 
-export const parseMemories = (data: string): Memory[] => {
-	return parseKeyValueList(data, (name, value) => ({
+export const parseMemories = (memories: string): Memory[] => {
+	return parseKeyValueList(memories, (name, value) => ({
 		name,
 		value: getMixedValue(value),
 	}));
 };
 
-export const parseLove = (data: string): Love[] => {
-	return parseKeyValueList(data, (character, value) => ({
+export const parseLove = (love: string): Love[] => {
+	return parseKeyValueList(love, (character, value) => ({
 		character,
 		value: Number(value),
 	}));
 };
 
-export const parseStatus = (data: string): Status[] => {
-	return parseKeyValueList(data, (name, duration) => ({
+export const parseStatus = (status: string): Status[] => {
+	return parseKeyValueList(status, (name, duration) => ({
 		name,
 		duration: Number(duration),
 	}));
 };
 
-export const parseStories = (data: string): Story[] => {
-	return parseKeyValueList(data, (name, month) => ({
+export const parseStories = (stories: string): Story[] => {
+	return parseKeyValueList(stories, (name, month) => ({
 		name,
 		month: Number(month),
 	}));
 };
 
-export const parseGroundHogs = (data: string): GroundHog[] => {
-	return parseKeyValueList(data, (name, value) => ({
+export const parseGroundHogs = (groundHogs: string): GroundHog[] => {
+	return parseKeyValueList(groundHogs, (name, value) => ({
 		name,
 		value: getMixedValue(value),
 	}));
 };
 
-export const parseMapSpots = (data: string) => {
+export const parseMapSpots = (mapSpots: string) => {
 	const output: Record<string, MapSpot[]> = {};
-	const allMapSpotKVPs = data.split(';');
+	const allMapSpotKVPs = mapSpots.split(';');
 
 	for (const mapSpotKVP of allMapSpotKVPs) {
 		let [mapName, mapSpots] = mapSpotKVP.split('=');
@@ -77,9 +115,9 @@ export const parseMapSpots = (data: string) => {
 	return output;
 };
 
-export const parseStoryLogs = (data: string) => {
+export const parseStoryLogs = (storyLogs: string) => {
 	const output: StoryLog[] = [];
-	const allStoryLogs = data.split(',');
+	const allStoryLogs = storyLogs.split(',');
 
 	for (const story of allStoryLogs) {
 		let [month, storyNames] = story.split(':');
@@ -104,9 +142,9 @@ export const parseStoryLogs = (data: string) => {
 	return output;
 };
 
-export const parseYearStat = (data: string) => {
+export const parseYearStat = (yearStats: string) => {
 	const output: YearStat[] = [];
-	const allYearStats = data.split(',');
+	const allYearStats = yearStats.split(',');
 
 	for (const yearStat of allYearStats) {
 		let [year, data] = yearStat.split(':');
@@ -177,9 +215,9 @@ export const parseYearStat = (data: string) => {
 	return output;
 };
 
-export const parseSeenChoices = (data: string) => {
+export const parseSeenChoices = (seenChoices: string) => {
 	const output: SeenChoice[] = [];
-	const allSeenChoices = data.split(',');
+	const allSeenChoices = seenChoices.split(',');
 
 	for (const seemChoice of allSeenChoices) {
 		let [storyId, choiceIds] = seemChoice.split(':');
@@ -204,39 +242,136 @@ export const parseSeenChoices = (data: string) => {
 	return output;
 };
 
-const parseKeyValueList = <T>(data: string, map: (key: string, value: string) => T | null): T[] => {
-	const output: T[] = [];
+const stringifyMixedValue = (value: MixedValue): string => {
+	switch (typeof value) {
+		case 'boolean':
+			return value ? 'true' : 'false';
 
-	for (const raw of data.split(',')) {
-		if (!raw.trim()) continue;
-
-		let [key, value] = raw.split(':', 2);
-		key = key?.trim() ?? '';
-		value = value?.trim() ?? '';
-
-		if (!key || !value) continue;
-
-		const mapped = map(key, value);
-		if (mapped) output.push(mapped);
+		default:
+			return String(value);
 	}
-
-	return output;
 };
 
-const parseMapSpot = (data: string) => {
-	const output: MapSpot[] = [];
-	const allMapSpots = data.split(',');
+const stringifyKeyValueList = <T>(items: T[], getKeyVal: (item: T) => [string, string]): string => {
+	if (!items.length) return '';
 
-	for (const mapSpot of allMapSpots) {
-		let [name, storyId] = mapSpot.split(':');
+	const parts = items.map((item) => {
+		const [key, value] = getKeyVal(item);
 
-		name = name.trim();
+		return `${key}: ${value}`;
+	});
 
-		if (!storyId) continue;
+	return parts.join(', ') + ', ';
+};
 
-		storyId = storyId.trim();
-		output.push({ name, storyId });
+export const stringifySkills = (skills: Skill[]): string => {
+	return stringifyKeyValueList(skills, (s) => [s.name, String(s.value)]);
+};
+
+export const stringifyMemories = (memories: Memory[]): string => {
+	return stringifyKeyValueList(memories, (m) => [m.name, stringifyMixedValue(m.value)]);
+};
+
+export const stringifyLove = (love: Love[]): string => {
+	return stringifyKeyValueList(love, (l) => [l.character, String(l.value)]);
+};
+
+export const stringifyStatus = (statuses: Status[]): string => {
+	if (!statuses.length) return '';
+
+	return stringifyKeyValueList(statuses, (s) => [s.name, String(s.duration)]);
+};
+
+export const stringifyStories = (stories: Story[]): string => {
+	return stringifyKeyValueList(stories, (s) => [s.name, String(s.month)]);
+};
+
+export const stringifyGroundHogs = (groundHogs: GroundHog[]): string => {
+	return stringifyKeyValueList(groundHogs, (g) => [g.name, stringifyMixedValue(g.value)]);
+};
+
+export const stringifyMapSpots = (mapSpotsByMap: Record<string, MapSpot[]>): string => {
+	const segments: string[] = [];
+
+	for (const [mapName, spots] of Object.entries(mapSpotsByMap)) {
+		if (!mapName) continue;
+
+		if (!spots || !spots.length) {
+			segments.push(`${mapName}= `);
+		} else {
+			const spotsPart = spots.map((spot) => `${spot.name}:${spot.storyId}, `).join('');
+
+			segments.push(`${mapName}= ${spotsPart}`);
+		}
 	}
 
-	return output;
+	if (!segments.length) return '';
+
+	return segments.join('; ') + '; ';
+};
+
+export const stringifyStoryLogs = (logs: StoryLog[]): string => {
+	if (!logs.length) return '';
+
+	const segments = logs.map((log) => {
+		const inner = log.storyNames.map((name) => `${name}; `).join('');
+
+		return `${log.month}: ${inner}`;
+	});
+
+	return segments.join(', ') + ', ';
+};
+
+export const stringifyYearStats = (stats: YearStat[]): string => {
+	if (!stats.length) return '';
+
+	const yearSegments = stats.map((yearStat) => {
+		const pieces: string[] = [];
+
+		for (const skill of yearStat.skills ?? []) {
+			pieces.push(`skill~${skill.name}=${skill.value}`);
+		}
+
+		for (const love of yearStat.love ?? []) {
+			pieces.push(`chara~${love.character}=${love.value}`);
+		}
+
+		const cards = yearStat.cards ?? [];
+
+		if (cards.length) {
+			pieces.push(`cards~${cards.join('/')}`);
+		} else {
+			pieces.push('cards~');
+		}
+
+		const jobs = yearStat.jobs ?? [];
+
+		if (jobs.length) {
+			pieces.push(`jobs~${jobs.join('/')}`);
+		} else {
+			pieces.push('jobs~');
+		}
+
+		for (const mem of yearStat.memories ?? []) {
+			pieces.push(`mem~${mem.name}=${stringifyMixedValue(mem.value)}`);
+		}
+
+		const inner = pieces.map((p) => `${p}; `).join('');
+
+		return `${yearStat.year}: ${inner}`;
+	});
+
+	return yearSegments.join(', ') + ', ';
+};
+
+export const stringifySeenChoices = (choices: SeenChoice[]): string => {
+	if (!choices.length) return '';
+
+	const segments = choices.map((choice) => {
+		const inner = choice.choiceIds.map((id) => `${id}; `).join('');
+
+		return `${choice.storyId}: ${inner}`;
+	});
+
+	return segments.join(', ') + ', ';
 };

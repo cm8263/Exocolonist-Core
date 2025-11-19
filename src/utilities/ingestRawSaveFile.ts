@@ -24,8 +24,8 @@ export const ingestRawSaveFile = (json: string) => {
 		mapName: rawSaveFile.mapName,
 
 		playerName: rawSaveFile.princessName,
-		pronouns: rawSaveFile.genderPronounsFloat,
-		appearance: rawSaveFile.genderAppearanceFloat,
+		pronouns: Math.round(rawSaveFile.genderPronounsFloat * 10) / 10,
+		appearance: Math.round(rawSaveFile.genderAppearanceFloat * 10) / 10,
 
 		cards: rawSaveFile.cards,
 		gear: rawSaveFile.equippedGear,
