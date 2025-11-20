@@ -1,6 +1,7 @@
 import { RawSaveFile } from '../types/interface/rawSaveFile';
 import { ParsedSaveFile } from '../types/interface/parsedSaveFile';
 import {
+	parseCustomGenderStrings,
 	parseGroundHogs,
 	parseLove,
 	parseMapSpots,
@@ -49,7 +50,7 @@ export const ingestRawSaveFile = (json: string) => {
 		stories: parseStories(rawSaveFile.storiesSerialized),
 		storyLog: parseStoryLogs(rawSaveFile.storiesLogSerialized),
 		yearsStats: parseYearStat(rawSaveFile.yearStatsSerialized),
-		// TODO: `customGenderSerialized` - create a game and see about setting this value
+		customGenderStrings: parseCustomGenderStrings(rawSaveFile.customGenderSerialized),
 		groundhogs: parseGroundHogs(rawSaveFile.groundhogsSerialized),
 	};
 

@@ -11,9 +11,14 @@ import { StoryLog } from '../interface/storyLog';
 import { YearStat } from '../interface/yearStat';
 import { GroundHog } from '../interface/groundHog';
 import { SeenChoice } from '../interface/seenChoice';
+import { CustomGenderString } from '../interface/customGenderString';
 
 export class SaveGame {
-	constructor(public data: ParsedSaveFile) {}
+	constructor(private data: ParsedSaveFile) {}
+
+	get parsedSaveFile(): ParsedSaveFile {
+		return this.data;
+	}
 
 	//region Week
 	get week() {
@@ -138,7 +143,9 @@ export class SaveGame {
 
 	setSkill(name: string, value: number): this {
 		if (value < 0 || value > 100) {
-			throw new Error(`Skill "${name}" had an invalid value`);
+			if (name !== 'kudos') {
+				throw new Error(`Skill "${name}" had an invalid value`);
+			}
 		}
 
 		const skill = this.data.skills.find((i) => i.name === name);
@@ -342,7 +349,23 @@ export class SaveGame {
 	//endregion
 
 	//region Custom Gender
-	// TODO: Custom gender
+	get customGenderStrings() {
+		return this.data.customGenderStrings;
+	}
+
+	set customGenderStrings(customGenderStrings: CustomGenderString[]) {
+		this.data.customGenderStrings = customGenderStrings;
+	}
+
+	changeCustomGenderString(string: string, value: string) {
+		const customGenderString = this.data.customGenderStrings.find((i) => i.string === string);
+
+		if (customGenderString) {
+			customGenderString.value = value;
+		} else {
+			this.data.customGenderStrings.push({ string: string, value });
+		}
+	}
 	//endregion
 
 	//region Seen Tutorials
@@ -368,18 +391,31 @@ export class SaveGame {
 		return this.data.cards.includes(name.toLowerCase());
 	}
 
-	addCard(name: string): this {
-		if (this.hasCard(name)) return this;
+	countCard(name: string) {
+		return this.data.cards.reduce(
+			(count, c) => (c === name.toLowerCase() ? count + 1 : count),
+			0,
+		);
+	}
 
+	addCard(name: string): this {
 		this.data.cards.push(name.toLowerCase());
 
 		return this;
 	}
 
-	removeCard(name: string) {
-		if (!this.hasCard(name)) return;
+	removeCard(name: string): this {
+		const index = this.data.cards.indexOf(name.toLowerCase());
 
-		this.data.cards = this.data.cards.filter((i) => i !== name.toLowerCase());
+		if (index !== -1) this.data.cards.splice(index, 1);
+
+		return this;
+	}
+
+	removeAllCardsWithName(name: string): this {
+		this.data.cards = this.data.cards.filter((c) => c !== name.toLowerCase());
+
+		return this;
 	}
 	//endregion
 

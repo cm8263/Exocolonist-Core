@@ -9,6 +9,7 @@ import { StoryLog } from './storyLog';
 import { YearStat } from './yearStat';
 import { GroundHog } from './groundHog';
 import { SeenChoice } from './seenChoice';
+import { CustomGenderString } from './customGenderString';
 
 export interface ParsedSaveFile {
 	fileVersion: number;
@@ -44,5 +45,6 @@ export interface ParsedSaveFile {
 	stories: Story[];
 	storyLog: StoryLog[];
 	yearsStats: YearStat[];
+	customGenderStrings: CustomGenderString[];
 	groundhogs: GroundHog[];
 }

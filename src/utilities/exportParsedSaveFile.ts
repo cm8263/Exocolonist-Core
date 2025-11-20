@@ -1,6 +1,7 @@
 import { RawSaveFile } from '../types/interface/rawSaveFile';
 import { ParsedSaveFile } from '../types/interface/parsedSaveFile';
 import {
+	stringifyCustomGenderStrings,
 	stringifyGroundHogs,
 	stringifyLove,
 	stringifyMapSpots,
@@ -33,8 +34,7 @@ export const exportParsedSaveFile = (parsedSaveFile: ParsedSaveFile) => {
 		storiesSerialized: stringifyStories(parsedSaveFile.stories),
 		storiesLogSerialized: stringifyStoryLogs(parsedSaveFile.storyLog),
 		yearStatsSerialized: stringifyYearStats(parsedSaveFile.yearsStats),
-		// TODO:
-		customGenderSerialized: '',
+		customGenderSerialized: stringifyCustomGenderStrings(parsedSaveFile.customGenderStrings),
 		seenTutorials: parsedSaveFile.seenTutorials,
 		cards: parsedSaveFile.cards,
 		equippedGear: parsedSaveFile.gear,

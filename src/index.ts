@@ -10,11 +10,31 @@ import { GroundHog } from './types/interface/groundHog';
 import { getMixedValue } from './utilities/getMixedValue.js';
 import { SeenChoice } from './types/interface/seenChoice';
 import { MixedValue } from './types/mixedValue';
+import { CustomGenderString } from './types/interface/customGenderString';
 
 const parseKeyValueList = <T>(data: string, map: (key: string, value: string) => T | null): T[] => {
 	const output: T[] = [];
 
-	for (const raw of data.split(',')) {
+	const parts: string[] = [];
+	let current = '';
+
+	for (let i = 0; i < data.length; i++) {
+		const ch = data[i];
+
+		// Makes sure there isn't a `|` following the `,`
+		// If there is, it means we're inside a string
+		if (ch === ',' && data[i + 1] !== '|') {
+			parts.push(current);
+			current = '';
+		} else {
+			current += ch;
+		}
+	}
+	if (current) {
+		parts.push(current);
+	}
+
+	for (const raw of parts) {
 		if (!raw.trim()) continue;
 
 		let [key, value] = raw.split(':', 2);
@@ -215,6 +235,13 @@ export const parseYearStat = (yearStats: string) => {
 	return output;
 };
 
+export const parseCustomGenderStrings = (customGenderStrings: string): CustomGenderString[] => {
+	return parseKeyValueList(customGenderStrings, (string, value) => ({
+		string,
+		value,
+	}));
+};
+
 export const parseSeenChoices = (seenChoices: string) => {
 	const output: SeenChoice[] = [];
 	const allSeenChoices = seenChoices.split(',');
@@ -362,6 +389,12 @@ export const stringifyYearStats = (stats: YearStat[]): string => {
 	});
 
 	return yearSegments.join(', ') + ', ';
+};
+
+export const stringifyCustomGenderStrings = (customGenderStrings: CustomGenderString[]): string => {
+	if (!customGenderStrings.length) return '';
+
+	return stringifyKeyValueList(customGenderStrings, (s) => [s.string, s.value]);
 };
 
 export const stringifySeenChoices = (choices: SeenChoice[]): string => {
