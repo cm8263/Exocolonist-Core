@@ -427,7 +427,16 @@ export class SaveGame {
 	removeCard(name: string): this {
 		const index = this.data.cards.indexOf(name.toLowerCase());
 
-		if (index !== -1) this.data.cards.splice(index, 1);
+		if (index === -1) return this;
+
+		this.data.cards.splice(index, 1);
+
+		const details = getCardDetails(name);
+
+		if (details && details.type === 'gear') {
+			// Does a `hasHear` gear check internally
+			this.removeGear(name);
+		}
 
 		return this;
 	}
