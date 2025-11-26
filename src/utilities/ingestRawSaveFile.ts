@@ -56,7 +56,7 @@ export const ingestRawSaveFile = (json: string) => {
 
 	// Round sliders to 2dp
 	parsedSaveFile.pronouns = Math.round(parsedSaveFile.pronouns * 100) / 100;
-	parsedSaveFile.appearance = Math.round(parsedSaveFile.pronouns * 100) / 100;
+	parsedSaveFile.appearance = Math.round(parsedSaveFile.appearance * 100) / 100;
 
 	// Round xyz to 2dp
 	parsedSaveFile.mapCoords.x = Math.round(parsedSaveFile.mapCoords.x * 100) / 100;
