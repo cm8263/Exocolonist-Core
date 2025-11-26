@@ -12,6 +12,8 @@ import { YearStat } from '../interface/yearStat';
 import { GroundHog } from '../interface/groundHog';
 import { SeenChoice } from '../interface/seenChoice';
 import { CustomGenderString } from '../interface/customGenderString';
+import { getCardDetails } from '../../utilities/getCardDetails';
+import { getSkillDetails } from '../../utilities/getSkillDetails';
 
 export class SaveGame {
 	constructor(private data: ParsedSaveFile) {}
@@ -152,8 +154,12 @@ export class SaveGame {
 	}
 
 	setSkill(name: string, value: number): this {
+		const validSkill = !!getSkillDetails(name);
+
+		if (!validSkill) return this;
+
 		if (value < 0 || value > 100) {
-			if (name !== 'kudos') {
+			if (name !== 'kudos' || value > 999) {
 				throw new Error(`Skill "${name}" had an invalid value`);
 			}
 		}
@@ -409,6 +415,10 @@ export class SaveGame {
 	}
 
 	addCard(name: string): this {
+		const details = getCardDetails(name);
+
+		if (!details || (this.hasCard(name) && details.type === 'gear')) return this;
+
 		this.data.cards.push(name.toLowerCase());
 
 		return this;
