@@ -58,6 +58,16 @@ export class SaveGame {
 	set mapCoords(coords: MapCoords) {
 		this.data.mapCoords = coords;
 	}
+
+	setMapCoord(coord: string, value: number) {
+		const coordLower = coord.toLowerCase();
+
+		if (coordLower !== 'x' && coordLower !== 'y' && coordLower !== 'z') {
+			return;
+		}
+
+		this.data.mapCoords[coordLower] = value;
+	}
 	//endregion
 
 	//region Map Name

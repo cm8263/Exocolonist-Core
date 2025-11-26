@@ -1,7 +1,7 @@
 import { PerkDetails } from '../types/interface/perkDetails';
 
 export const getPerkDetails = (name: string) => {
-	return perks.find((i) => i.id.toLowerCase() === name.toLowerCase()) ?? null;
+	return perksById.get(name.toLowerCase()) ?? null;
 };
 
 const perks: PerkDetails[] = [
@@ -598,3 +598,5 @@ const perks: PerkDetails[] = [
 		snippet3: '',
 	},
 ];
+
+const perksById = new Map(perks.map((perk) => [perk.id.toLowerCase(), perk]));

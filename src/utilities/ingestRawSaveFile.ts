@@ -25,8 +25,8 @@ export const ingestRawSaveFile = (json: string) => {
 		mapName: rawSaveFile.mapName,
 
 		playerName: rawSaveFile.princessName,
-		pronouns: Math.round(rawSaveFile.genderPronounsFloat * 100) / 100,
-		appearance: Math.round(rawSaveFile.genderAppearanceFloat * 100) / 100,
+		pronouns: rawSaveFile.genderPronounsFloat,
+		appearance: rawSaveFile.genderAppearanceFloat,
 
 		cards: rawSaveFile.cards,
 		gear: rawSaveFile.equippedGear,
@@ -53,6 +53,15 @@ export const ingestRawSaveFile = (json: string) => {
 		customGenderStrings: parseCustomGenderStrings(rawSaveFile.customGenderSerialized),
 		groundhogs: parseGroundHogs(rawSaveFile.groundhogsSerialized),
 	};
+
+	// Round sliders to 2dp
+	parsedSaveFile.pronouns = Math.round(parsedSaveFile.pronouns * 100) / 100;
+	parsedSaveFile.appearance = Math.round(parsedSaveFile.pronouns * 100) / 100;
+
+	// Round xyz to 2dp
+	parsedSaveFile.mapCoords.x = Math.round(parsedSaveFile.mapCoords.x * 100) / 100;
+	parsedSaveFile.mapCoords.y = Math.round(parsedSaveFile.mapCoords.y * 100) / 100;
+	parsedSaveFile.mapCoords.z = Math.round(parsedSaveFile.mapCoords.z * 100) / 100;
 
 	return parsedSaveFile;
 };

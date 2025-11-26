@@ -1,7 +1,7 @@
 import { SkillDetails } from '../types/interface/skillDetails';
 
 export const getSkillDetails = (name: string) => {
-	return skills.find((i) => i.id.toLowerCase() === name.toLowerCase()) ?? null;
+	return skillsById.get(name.toLowerCase()) ?? null;
 };
 
 const skills: SkillDetails[] = [
@@ -156,3 +156,5 @@ const skills: SkillDetails[] = [
 		notes: 'Relationship with adults and colony government',
 	},
 ];
+
+const skillsById = new Map(skills.map((skill) => [skill.id.toLowerCase(), skill]));
