@@ -4,6 +4,8 @@ export const getCardDetails = (name: string) => {
 	return cardsById.get(name.toLowerCase()) ?? null;
 };
 
+export const getAllCardDetails = () => cards;
+
 const cards: CardDetails[] = [
 	{
 		id: 'social0',
